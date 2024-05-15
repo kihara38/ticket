@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const TicketForm = () => {
+  const router = useRouter();
+
   const handlechange = (e) => {
     const value = e.target.value;
     const name = e.target.name;
@@ -14,8 +16,18 @@ const TicketForm = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("submitted");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/Tickets", {
+      method: "POST",
+      body: JSON.stringify({ formData }),
+      "content-type": "application/json",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to update ticket");
+    }
+    router.refresh();
+    router.push("/");
   };
 
   const startingTicketData = {
@@ -132,11 +144,12 @@ const TicketForm = () => {
           max="100"
           onChange={handlechange}
         />
+
         <label>Status</label>
         <select name="status" value={formData.status} onChange={handlechange}>
           <option value="not started">Not Started</option>
-          <option value=" started"> Started</option>
-          <option value="Done">Done</option>
+          <option value="started">Started</option>
+          <option value="done">Done</option>
         </select>
 
         <input type="submit" className="btn" value="Created Ticket" />
